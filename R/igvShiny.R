@@ -374,6 +374,68 @@ loadBedGraphTrackFromURL <- function(session, id, trackName, url, color="gray",
 
 } # loadBedGraphTrackFromURL
 #------------------------------------------------------------------------------------------------------------------------
+#' load a bedgraph track from a URL
+#'
+#' @description load a bedgrapn track provided as a data.frame
+#'
+#' @rdname loadBedGraphTrackFromURL
+#' @aliases loadBedGraphTrackFromURL
+#'
+#' @param session an environment or list, provided and managed by shiny
+#' @param id character string, the html element id of this widget instance
+#' @param trackName character string
+#' @param url character
+#' @param color character string, a legal CSS color, or "random", "gray" by default
+#' @param trackHeight an integer, 30 (pixels) by default
+#' @param autoscale logical
+#' @param min numeric, consulted when autoscale is FALSE
+#' @param max numeric, consulted when autoscale is FALSE
+#' @param quiet logical, default TRUE, controls verbosity
+#' @param autoscaleGroup numeric(1) defaults to -1
+#' @param deleteTracksOfSameName logical(1) defaults to TRUE
+#'
+#' @return
+#' nothing
+#'
+#' @export
+
+loadBedGraphTrackFromLocalData <- function(session, id, trackName, url, color="gray",
+                                     trackHeight=30,
+                                     autoscale=TRUE,
+                                     min=0, max=1,
+                                     autoscaleGroup=-1,
+                                     deleteTracksOfSameName=TRUE, quiet=TRUE)
+{
+   print("---- loadBedGraphTrackFromLocalData")
+
+   if(color == "random")
+      color <- randomColors[sample(seq_len(length(randomColors)), 1)]
+
+   if(!quiet){
+      log("--- igvShiny::loadBedGraphTrackFromLocalData: %s", trackName);
+      }
+
+   if(deleteTracksOfSameName){
+      log("--- igvShiny.R loadBedGraphTrackFromLocalData, calling removeTracksByName: %s, %s", id, trackName)
+      removeTracksByName(session, id, trackName);
+      }
+
+   state[["userAddedTracks"]] <- unique(c(state[["userAddedTracks"]], trackName))
+
+
+   msg.to.igv <- list(elementID=id, trackName=trackName, url=url,
+                      color=color, trackHeight=trackHeight,
+                      autoscale=autoscale, min=min, max=max,
+                      autoscaleGroup=autoscaleGroup)  # -1 means no grouping
+
+   log("--- igvShiny.R loadBedGraphTrackFromLocalData, msg.to.igv: ")
+   print(msg.to.igv)
+   log("--- igvShiny.R loadBedGraphTrackFromLocalData, sendingCustomMessage")
+   session$sendCustomMessage("loadBedGraphTrackFromLocalData", msg.to.igv)
+   log("--- igvShiny.R loadBedGraphTrackFromLocalData, after sendingCustomMessage")
+
+} # loadBedGraphTrackFromLocalData
+#------------------------------------------------------------------------------------------------------------------------
 #' load a scored genome annotation track provided as a data.frame
 #'
 #' @description load a genome annotation track provided as a data.frame
